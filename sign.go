@@ -9,6 +9,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/russellhaering/goxmldsig/xenc"
+	"log"
 
 	"github.com/beevik/etree"
 	"github.com/russellhaering/goxmldsig/etreeutils"
@@ -96,7 +98,6 @@ func (ctx *SigningContext) constructSignedInfo(el *etree.Element, enveloped bool
 	} else {
 		reference.CreateAttr(URIAttr, "#"+dataId)
 	}
-
 
 	// /SignedInfo/Reference/Transforms
 	transforms := ctx.createNamespacedElement(reference, TransformsTag)
@@ -196,8 +197,24 @@ func (ctx *SigningContext) ConstructSignature(el *etree.Element, enveloped bool)
 	keyInfo := ctx.createNamespacedElement(sig, KeyInfoTag)
 	x509Data := ctx.createNamespacedElement(keyInfo, X509DataTag)
 	for _, cert := range certs {
-		x509Certificate := ctx.createNamespacedElement(x509Data, X509CertificateTag)
-		x509Certificate.SetText(base64.StdEncoding.EncodeToString(cert))
+		// TODO: make cert handling mode driven
+		x509IssuerSerial := ctx.createNamespacedElement(x509Data, X509IssuerSerialTag)
+		x509IssuerName := ctx.createNamespacedElement(x509IssuerSerial, X509IssuerNameTag)
+
+		publicCert, _, err := xenc.ParseCertificateBytes(cert)
+
+		if err != nil {
+			log.Printf("failed to convert cert bytes to public key: %v", err)
+			continue
+		}
+
+		x509IssuerName.SetText(xenc.GetDNFromCert(publicCert.Subject))
+
+		x509SerialNumber := ctx.createNamespacedElement(x509IssuerSerial, X509SerialNumberTag)
+		x509SerialNumber.SetText(publicCert.SerialNumber.String())
+
+		//x509Certificate := ctx.createNamespacedElement(x509Data, X509CertificateTag)
+		//x509Certificate.SetText(base64.StdEncoding.EncodeToString(cert))
 	}
 
 	return sig, nil

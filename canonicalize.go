@@ -31,13 +31,21 @@ func (c *NullCanonicalizer) Canonicalize(el *etree.Element) ([]byte, error) {
 
 type c14N10ExclusiveCanonicalizer struct {
 	prefixList string
+	useX509IssuerSerial bool
 }
 
 // MakeC14N10ExclusiveCanonicalizerWithPrefixList constructs an exclusive Canonicalizer
-// from a PrefixList in NMTOKENS format (a white space separated list).
+// from a PrefixList in NC14N10ExclusiveCanonicalizerMTOKENS format (a white space separated list).
 func MakeC14N10ExclusiveCanonicalizerWithPrefixList(prefixList string) Canonicalizer {
 	return &c14N10ExclusiveCanonicalizer{
 		prefixList: prefixList,
+	}
+}
+
+func MakeC14N10ExclusiveCanonicalizerWithSigSerial(prefixList string, useX509IssuerSerial bool) Canonicalizer {
+	return &c14N10ExclusiveCanonicalizer{
+		prefixList: prefixList,
+		useX509IssuerSerial: useX509IssuerSerial,
 	}
 }
 

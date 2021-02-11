@@ -22,6 +22,9 @@ const (
 	KeyInfoTag                = "KeyInfo"
 	X509DataTag               = "X509Data"
 	X509CertificateTag        = "X509Certificate"
+	X509IssuerSerialTag       = "X509IssuerSerial"
+	X509IssuerNameTag         = "X509IssuerName"
+	X509SerialNumberTag       = "X509SerialNumber"
 	InclusiveNamespacesTag    = "InclusiveNamespaces"
 )
 
